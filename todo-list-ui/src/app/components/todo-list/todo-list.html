@@ -1,0 +1,31 @@
+<app-spinner [loading]="spinnerService.loading$ | async" />
+<section class="todo">
+  <h1>TODOs</h1>
+  <form (ngSubmit)="onAdd()" class="add-form">
+    <input
+      type="text"
+      name="title"
+      [(ngModel)]="newTitle"
+      placeholder="What needs to be done?"
+      required
+      autocomplete="off"
+    />
+    <button type="submit" [disabled]="!canAdd()">Add</button>
+  </form>
+
+  <div class="list" *ngIf="todos().length; else empty">
+    <ul>
+      <li *ngFor="let item of todos(); trackBy: trackById">
+        <span>{{ item.title }}</span>
+        <button type="button" (click)="onDelete(item.id)" aria-label="Delete">✕</button>
+      </li>
+    </ul>
+  </div>
+
+  <ng-template #empty>
+    <p class="empty">No TODOs yet. Add one above.</p>
+  </ng-template>
+
+  <p *ngIf="loading()">Loading...</p>
+  <p *ngIf="error()" class="error">{{ error() }}</p>
+</section>
