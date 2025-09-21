@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser'
+import { By } from '@angular/platform-browser';
 import { SpinnerComponent } from './spinner.component';
 
 describe('Spinner', () => {
@@ -8,9 +8,8 @@ describe('Spinner', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SpinnerComponent]
-    })
-    .compileComponents();
+      imports: [SpinnerComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SpinnerComponent);
     component = fixture.componentInstance;
@@ -18,14 +17,14 @@ describe('Spinner', () => {
   });
 
   it('should create', () => {
-    component.loading = true
+    component.loading = true;
 
-    fixture.detectChanges()
+    fixture.detectChanges();
 
-    expect(component).toBeTruthy()
-    expect(component.diameter).toBe(50)
-    expect(component.loading).toBe(true)
-    let divElement = fixture.debugElement.query(By.css('.spinner-container'))
-    expect(divElement).toBeTruthy()
+    expect(component).toBeTruthy();
+    expect(component.diameter).toBe(50);
+    expect(component.loading).toBe(true);
+    let divElement = fixture.debugElement.query(By.css('.spinner-container'));
+    expect(divElement).toBeTruthy();
   });
 });

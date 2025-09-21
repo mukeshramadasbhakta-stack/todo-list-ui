@@ -1,37 +1,54 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Todo } from '../models/todo.model';
+import { Observable, catchError, throwError } from 'rxjs';
+
+export interface Todo {
+  id: string;
+  title: string;
+  completed?: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TodoService {
-  private readonly http: HttpClient = inject(HttpClient);
+  // TODO: add these to config
+  private apiUrl = 'http://localhost:5105/todo';
+  private readonly apiKey = 'B9680321-3913-499B-87AB-C4CE4A7E435D';
 
-  // Update the port if your backend exposes a different one
-  private readonly baseUrl = 'http://localhost:5105/todo';
-  private readonly apiKey = "B9680321-3913-499B-87AB-C4CE4A7E435D";
-
-  private opts() : {headers: HttpHeaders} {
+  private opts(): { headers: HttpHeaders } {
     return {
       headers: new HttpHeaders({
-        'x-api-key': this.apiKey
-      })
+        'x-api-key': this.apiKey,
+      }),
     };
   }
 
-  list(): Observable<Todo[]> {
-    return this.http.get<Todo[]>(this.baseUrl + '/getAll', this.opts());
+  constructor(private http: HttpClient) {}
+
+  getAll(): Observable<Todo[]> {
+    return this.http
+      .get<Todo[]>(`${this.apiUrl}/getAll`, this.opts())
+      .pipe(
+        catchError((err) => throwError(() => new Error(err.message || 'Failed to fetch items'))),
+      );
   }
 
   get(id: string): Observable<Todo> {
-    return this.http.get<Todo>(this.baseUrl + '?id=' + id, this.opts());
+    return this.http
+      .get<Todo>(`${this.apiUrl}?id=${id}`, this.opts())
+      .pipe(
+        catchError((err) => throwError(() => new Error(err.message || 'Failed to fetch item'))),
+      );
   }
 
-  add(todo: Todo): Observable<Todo> {
-    return this.http.post<Todo>(this.baseUrl, { todo }, this.opts());
+  upsert(todo: Todo): Observable<string> {
+    return this.http
+      .post<string>(`${this.apiUrl}`, { todo }, this.opts())
+      .pipe(catchError((err) => throwError(() => new Error(err.message || 'Failed to upsert'))));
   }
 
   delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`, this.opts());
+    return this.http
+      .delete<void>(`${this.apiUrl}?id=${id}`, this.opts())
+      .pipe(catchError((err) => throwError(() => new Error(err.message || 'Failed to delete'))));
   }
 }

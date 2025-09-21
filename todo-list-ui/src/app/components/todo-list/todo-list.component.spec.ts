@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TodoList } from './todo-list';
-import {of} from 'rxjs';
-import {Todo} from '../../models/todo.model';
-import {TodoService} from '../../services/todo.service';
+import { TodoListComponent } from './todo-list.component';
+import { of } from 'rxjs';
+import { Todo } from '../../models/todo.model';
+import { TodoService } from '../../services/todo.service';
 
 class MockTodoService {
   list = jasmine.createSpy().and.returnValue(of([{ id: '1', title: 'First' } as Todo]));
@@ -12,17 +12,17 @@ class MockTodoService {
 }
 
 describe('TodoList', () => {
-  let component: TodoList;
-  let fixture: ComponentFixture<TodoList>;
+  let component: TodoListComponent;
+  let fixture: ComponentFixture<TodoListComponent>;
   let service: MockTodoService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TodoList],
+      imports: [TodoListComponent],
       providers: [{ provide: TodoService, useClass: MockTodoService }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TodoList);
+    fixture = TestBed.createComponent(TodoListComponent);
     component = fixture.componentInstance;
     service = TestBed.inject(TodoService) as unknown as MockTodoService;
     fixture.detectChanges(); // triggers load()

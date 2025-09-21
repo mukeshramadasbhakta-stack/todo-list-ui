@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>{{ data.todo.title ? 'Edit Todo' : 'Add Todo' }}</h1>
+<div mat-dialog-content>
+  <input matInput [(ngModel)]="data.todo.title" placeholder="Todo title" />
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button color="primary" [disabled]="!data.todo.title" (click)="onSave()">Save</button>
+</div>
