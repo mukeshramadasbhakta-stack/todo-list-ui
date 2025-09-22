@@ -1,22 +1,22 @@
-import {Component, Inject} from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogContent,
   MatDialogModule,
   MatDialogRef,
-  MatDialogTitle
+  MatDialogTitle,
 } from '@angular/material/dialog';
 import moment from 'moment';
-import {FormsModule} from '@angular/forms';
-import {MatError, MatFormField, MatFormFieldModule, MatLabel} from '@angular/material/form-field';
-import {MatInput, MatInputModule} from '@angular/material/input';
-import {MatButton, MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatDatetimepickerModule} from '@mat-datetimepicker/core';
-import {MatMomentDatetimeModule} from '@mat-datetimepicker/moment';
-import {MatDatepickerModule} from '@angular/material/datepicker';
-import {Todo} from '../../models/todo.model';
+import { FormsModule } from '@angular/forms';
+import { MatError, MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatButton, MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDatetimepickerModule } from '@mat-datetimepicker/core';
+import { MatMomentDatetimeModule } from '@mat-datetimepicker/moment';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { Todo } from '../../models/todo.model';
 
 imports: [
   FormsModule,
@@ -27,8 +27,8 @@ imports: [
   MatDialogModule,
   MatDatetimepickerModule,
   MatMomentDatetimeModule,
-  MatDatepickerModule
-]
+  MatDatepickerModule,
+];
 
 @Component({
   selector: 'app-todo-dialog',
@@ -45,7 +45,7 @@ imports: [
     MatDialogActions,
     MatButton,
   ],
-  styleUrls: ['./todo-dialog.component.css']
+  styleUrls: ['./todo-dialog.component.css'],
 })
 export class TodoDialogComponent {
   // ensure a mutable model the template can bind to
@@ -53,10 +53,10 @@ export class TodoDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<TodoDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     // Normalize incoming data
-    const incoming: Todo = (data && data.todo) ? data.todo : data;
+    const incoming: Todo = data && data.todo ? data.todo : data;
 
     // Preserve id from caller if provided
     this.model.id = incoming?.id;
@@ -93,7 +93,7 @@ export class TodoDialogComponent {
     const result: Todo = {
       id: this.model.id,
       title: this.model.title?.trim(),
-      appointment: moment(this.model.appointment).format('YYYY-MM-DDTHH:mm:ssZ')
+      appointment: moment(this.model.appointment).format('YYYY-MM-DDTHH:mm:ssZ'),
     };
 
     this.dialogRef.close(result);

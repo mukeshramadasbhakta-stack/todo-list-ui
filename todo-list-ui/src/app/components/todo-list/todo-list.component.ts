@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { MatCardModule } from '@angular/material/card';
-import {Todo} from '../../models/todo.model';
+import { Todo } from '../../models/todo.model';
 import { OnDestroy, OnInit } from '@angular/core';
 import { interval, Subject, switchMap, takeUntil } from 'rxjs';
 
@@ -35,6 +35,11 @@ export class TodoListComponent implements OnInit, OnDestroy {
   error = signal('');
   private destroy$ = new Subject<void>();
 
+  // Pagination state
+  pageIndex = signal(0); // zero-based
+  pageSize = signal(10);
+  totalItems = signal(0);
+
   constructor(
     private todoService: TodoService,
     private dialog: MatDialog,
@@ -47,10 +52,14 @@ export class TodoListComponent implements OnInit, OnDestroy {
     interval(15000)
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(() => this.todoService.getAll())
+        switchMap(() => this.todoService.getAll()),
       )
       .subscribe({
-        next: (data) => this.todos.set(data),
+        next: (data) => {
+          this.todos.set(data);
+          this.updateTotalItems();
+          this.ensurePageInRange();
+        },
         error: (err) => this.error.set(err.message || 'Failed to load TODOs'),
       });
 
@@ -59,6 +68,14 @@ export class TodoListComponent implements OnInit, OnDestroy {
     };
     document.addEventListener('visibilitychange', onVisibility);
     (this as any)._onVisibility = onVisibility;
+
+    // Reset to first page when search term changes
+    const origSet = this.searchTerm.set.bind(this.searchTerm);
+    this.searchTerm.set = (v: string) => {
+      origSet(v);
+      this.pageIndex.set(0);
+      this.updateTotalItems();
+    };
   }
 
   ngOnDestroy(): void {
@@ -69,15 +86,47 @@ export class TodoListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Filtered by search
   get filteredTodos() {
     const term = this.searchTerm().toLowerCase();
-    return this.todos().filter((todo) => todo.title?.toLowerCase().includes(term));
+    const items = this.todos().filter((todo) => todo.title?.toLowerCase().includes(term));
+    // Keep totalItems in sync
+    if (this.totalItems() !== items.length) {
+      this.totalItems.set(items.length);
+      this.ensurePageInRange();
+    }
+    return items;
+  }
+
+  // Current page slice
+  get pagedTodos(): Todo[] {
+    const start = this.pageIndex() * this.pageSize();
+    const end = start + this.pageSize();
+    return this.filteredTodos.slice(start, end);
+  }
+
+  get totalPages(): number {
+    const size = this.pageSize();
+    return size > 0 ? Math.max(1, Math.ceil(this.totalItems() / size)) : 1;
+  }
+
+  private ensurePageInRange(): void {
+    const lastIndex = Math.max(0, this.totalPages - 1);
+    if (this.pageIndex() > lastIndex) this.pageIndex.set(lastIndex);
+  }
+
+  private updateTotalItems(): void {
+    this.totalItems.set(this.filteredTodos.length);
+    this.ensurePageInRange();
   }
 
   loadTodos() {
     this.loading.set(true);
     this.todoService.getAll().subscribe({
-      next: (data) => this.todos.set(data),
+      next: (data) => {
+        this.todos.set(data);
+        this.updateTotalItems();
+      },
       error: (err) => this.error.set(err.message || 'Failed to load TODOs'),
       complete: () => this.loading.set(false),
     });
@@ -87,7 +136,10 @@ export class TodoListComponent implements OnInit, OnDestroy {
     this.todoService.upsert(data).subscribe({
       next: () => {
         this.todoService.getAll().subscribe({
-          next: (data) => this.todos.set(data),
+          next: (data) => {
+            this.todos.set(data);
+            this.updateTotalItems();
+          },
           error: (err) => this.error.set(err.message),
         });
       },
@@ -100,8 +152,8 @@ export class TodoListComponent implements OnInit, OnDestroy {
         id: undefined,
         title: '',
         // Preselect now + 30 minutes
-        appointment: new Date(Date.now() + 30 * 60 * 1000).toISOString()
-      } as Todo
+        appointment: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      } as Todo,
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -126,11 +178,34 @@ export class TodoListComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed && todo.id) {
         this.todoService.delete(todo.id).subscribe({
-          next: () => this.todos.set(this.todos().filter((t) => t.id !== todo.id)),
+          next: () => {
+            this.todos.set(this.todos().filter((t) => t.id !== todo.id));
+            this.updateTotalItems();
+          },
           error: (err) => this.error.set(err.message),
         });
       }
     });
+  }
+
+  // Pagination controls
+  firstPage(): void {
+    this.pageIndex.set(0);
+  }
+  prevPage(): void {
+    this.pageIndex.set(Math.max(0, this.pageIndex() - 1));
+  }
+  nextPage(): void {
+    this.pageIndex.set(Math.min(this.totalPages - 1, this.pageIndex() + 1));
+  }
+  lastPage(): void {
+    this.pageIndex.set(this.totalPages - 1);
+  }
+  changePageSize(size: number): void {
+    const parsed = Number(size) || 10;
+    this.pageSize.set(parsed);
+    this.pageIndex.set(0);
+    this.updateTotalItems();
   }
 
   trackById(index: number, todo: Todo) {

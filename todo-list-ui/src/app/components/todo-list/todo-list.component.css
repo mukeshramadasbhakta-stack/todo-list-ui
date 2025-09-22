@@ -83,6 +83,7 @@ li {
   justify-content: flex-end;
 }
 
-.empty, .error {
+.empty,
+.error {
   margin-top: 12px;
 }

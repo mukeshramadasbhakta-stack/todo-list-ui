@@ -1,20 +1,30 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { TestBed } from '@angular/core/testing';
+import { SpinnerService } from './spinner.service';
+import { firstValueFrom } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class SpinnerService {
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
+describe('SpinnerService', () => {
+  let service: SpinnerService;
 
-  constructor() {}
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(SpinnerService);
+  });
 
-  show() {
-    this.loadingSubject.next(true);
-  }
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
 
-  hide() {
-    this.loadingSubject.next(false);
-  }
-}
+  it('should toggle loading state with show/hide', async () => {
+    const values: boolean[] = [];
+    const sub = service.loading$.subscribe((v) => values.push(v));
+    service.show();
+    service.hide();
+    service.show();
+    sub.unsubscribe();
+
+    // Initial false, then true, false, true
+    expect(values).toEqual([false, true, false, true]);
+    const latest = await firstValueFrom(service.loading$);
+    expect(typeof latest).toBe('boolean');
+  });
+});

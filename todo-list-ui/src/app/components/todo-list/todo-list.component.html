@@ -9,20 +9,32 @@
       <input matInput [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
     </mat-form-field>
 
+    <mat-form-field appearance="outline" class="page-size">
+      <mat-label>Page size</mat-label>
+      <input
+        matInput
+        type="number"
+        disabled
+        min="1"
+        [ngModel]="pageSize()"
+        (ngModelChange)="changePageSize($event)"
+      />
+    </mat-form-field>
+
     <button mat-raised-button type="button" color="primary" (click)="openAddDialog()">
       Add New
     </button>
   </div>
 
-  @if (filteredTodos.length) {
+  @if (pagedTodos.length) {
     <div class="list">
-      @for (item of filteredTodos; track trackById($index, item)) {
+      @for (item of pagedTodos; track trackById($index, item)) {
         <div class="row">
           <div class="title">
             {{ item.title }}
           </div>
           <div class="when">
-            {{ item.appointment ? (item.appointment | date:'d MMM, y · h:mm a') : 'No date' }}
+            {{ item.appointment ? (item.appointment | date: 'd MMM, y · h:mm a') : 'No date' }}
           </div>
           <div class="actions">
             <button mat-button (click)="openEditDialog(item)">Edit</button>
@@ -31,8 +43,23 @@
         </div>
       }
     </div>
-  }
-  @else {
+
+    <div class="paginator">
+      <button mat-stroked-button (click)="firstPage()" [disabled]="pageIndex() === 0">First</button>
+      <button mat-stroked-button (click)="prevPage()" [disabled]="pageIndex() === 0">Prev</button>
+
+      <span class="page-info">
+        Page {{ pageIndex() + 1 }} of {{ totalPages }} · {{ totalItems() }} items
+      </span>
+
+      <button mat-stroked-button (click)="nextPage()" [disabled]="pageIndex() >= totalPages - 1">
+        Next
+      </button>
+      <button mat-stroked-button (click)="lastPage()" [disabled]="pageIndex() >= totalPages - 1">
+        Last
+      </button>
+    </div>
+  } @else {
     <p class="empty">No TODOs yet. Add one above.</p>
   }
 
