@@ -1,20 +1,20 @@
-import { Component, Inject } from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {
-  MatDialogRef,
   MAT_DIALOG_DATA,
-  MatDialogTitle,
+  MatDialogActions,
   MatDialogContent,
-  MatDialogActions
+  MatDialogModule,
+  MatDialogRef,
+  MatDialogTitle
 } from '@angular/material/dialog';
 import moment from 'moment';
-import { FormsModule } from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import {MatError, MatFormField, MatFormFieldModule, MatLabel} from '@angular/material/form-field';
 import {MatInput, MatInputModule} from '@angular/material/input';
 import {MatButton, MatButtonModule} from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatDatetimepickerModule } from '@mat-datetimepicker/core';
-import { MatMomentDatetimeModule } from '@mat-datetimepicker/moment';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDatetimepickerModule} from '@mat-datetimepicker/core';
+import {MatMomentDatetimeModule} from '@mat-datetimepicker/moment';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {Todo} from '../../models/todo.model';
 
@@ -43,7 +43,7 @@ imports: [
     MatDialogContent,
     MatInput,
     MatDialogActions,
-    MatButton
+    MatButton,
   ],
   styleUrls: ['./todo-dialog.component.css']
 })
@@ -64,14 +64,9 @@ export class TodoDialogComponent {
     // Title
     this.model.title = incoming?.title ?? '';
 
-    // Appointment: accept Date | string | moment | undefined; store as ISO string for API
-    const appt = incoming?.appointment as unknown;
-    if (appt) {
-      const m = moment(appt);
-      this.model.appointment = m.isValid() ? m.toISOString() : '';
-    } else {
-      this.model.appointment = '';
-    }
+    const appt = (incoming?.appointment as unknown) ?? moment().add(30, 'minutes').toISOString();
+    const m = moment(appt);
+    this.model.appointment = m.isValid() ? m.toISOString() : '';
   }
 
   // Validate title and appointment
@@ -98,7 +93,7 @@ export class TodoDialogComponent {
     const result: Todo = {
       id: this.model.id,
       title: this.model.title?.trim(),
-      appointment: this.model.appointment ? moment(this.model.appointment).toISOString() : ''
+      appointment: moment(this.model.appointment).format('YYYY-MM-DDTHH:mm:ssZ')
     };
 
     this.dialogRef.close(result);

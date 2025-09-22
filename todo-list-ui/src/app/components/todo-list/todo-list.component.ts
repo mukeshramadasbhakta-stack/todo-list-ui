@@ -58,7 +58,8 @@ export class TodoListComponent {
       data: {
         id: undefined,
         title: '',
-        appointment: ''
+        // Preselect now + 30 minutes
+        appointment: new Date(Date.now() + 30 * 60 * 1000).toISOString()
       } as Todo
     });
     dialogRef.afterClosed().subscribe((result) => {

@@ -14,17 +14,22 @@
     }
   </mat-form-field>
 
+
   <mat-form-field class="form-field" appearance="outline">
     <mat-label>Appointment</mat-label>
+    <mat-datetimepicker-toggle matSuffix [for]="picker"></mat-datetimepicker-toggle>
+    <mat-datetimepicker #picker type="datetime" [openOnFocus]="true"></mat-datetimepicker>
     <input
+      #appt="ngModel"
+      [(ngModel)]="model.appointment"
+      [matDatetimepicker]="picker"
+      autocomplete="off"
+      dataformatas="DD/MM/YYYY, HH:mm"
       matInput
       name="appointment"
-      [matDatetimepicker]="picker"
       placeholder="Select date & time"
-      [(ngModel)]="model.appointment"
+      required
     />
-    <mat-datetimepicker-toggle matSuffix [for]="picker"></mat-datetimepicker-toggle>
-    <mat-datetimepicker #picker type="datetime"></mat-datetimepicker>
     @if (!isAppointmentValid()) {
       <mat-error>Choose a future date & time</mat-error>
     }

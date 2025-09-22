@@ -1,7 +1,9 @@
 import { NgModule } from '@angular/core';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 @NgModule({
-  // Keep this module only if you truly need a classic NgModule elsewhere.
-  // Do not declare or export SpinnerComponent here since it is standalone.
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'en-AU' }
+  ]
 })
 export class AppModule {}
