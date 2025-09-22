@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { MatCardModule } from '@angular/material/card';
 import {Todo} from '../../models/todo.model';
+import { OnDestroy, OnInit } from '@angular/core';
+import { interval, Subject, switchMap, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-todo-list',
@@ -26,17 +28,45 @@ import {Todo} from '../../models/todo.model';
   templateUrl: './todo-list.component.html',
   styleUrls: ['./todo-list.component.css'],
 })
-export class TodoListComponent {
+export class TodoListComponent implements OnInit, OnDestroy {
   todos = signal<Todo[]>([]);
   searchTerm = signal('');
   loading = signal(false);
   error = signal('');
+  private destroy$ = new Subject<void>();
 
   constructor(
     private todoService: TodoService,
     private dialog: MatDialog,
   ) {
     this.loadTodos();
+  }
+
+  ngOnInit(): void {
+    // Poll every 15s
+    interval(15000)
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.todoService.getAll())
+      )
+      .subscribe({
+        next: (data) => this.todos.set(data),
+        error: (err) => this.error.set(err.message || 'Failed to load TODOs'),
+      });
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') this.loadTodos();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    (this as any)._onVisibility = onVisibility;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if ((this as any)._onVisibility) {
+      document.removeEventListener('visibilitychange', (this as any)._onVisibility);
+    }
   }
 
   get filteredTodos() {
@@ -53,6 +83,17 @@ export class TodoListComponent {
     });
   }
 
+  private saveDataAndRefresh(data: any) {
+    this.todoService.upsert(data).subscribe({
+      next: () => {
+        this.todoService.getAll().subscribe({
+          next: (data) => this.todos.set(data),
+          error: (err) => this.error.set(err.message),
+        });
+      },
+      error: (err) => this.error.set(err.message),
+    });
+  }
   openAddDialog() {
     const dialogRef = this.dialog.open(TodoDialogComponent, {
       data: {
@@ -64,15 +105,7 @@ export class TodoListComponent {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.todoService.upsert(result).subscribe({
-          next: (newId) => {
-            this.todoService.get(newId).subscribe({
-              next: (newTodo) => this.todos.set([...this.todos(), newTodo]),
-              error: (err) => this.error.set(err.message),
-            });
-          },
-          error: (err) => this.error.set(err.message),
-        });
+        this.saveDataAndRefresh(result);
       }
     });
   }
@@ -81,16 +114,7 @@ export class TodoListComponent {
     const dialogRef = this.dialog.open(TodoDialogComponent, { data: { todo: todo } });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.todoService.upsert(result).subscribe({
-          next: (newId) => {
-            this.todoService.get(newId).subscribe({
-              next: (newTodo) =>
-                this.todos.set(this.todos().map((t) => (t.id === newTodo.id ? newTodo : t))),
-              error: (err) => this.error.set(err.message),
-            });
-          },
-          error: (err) => this.error.set(err.message),
-        });
+        this.saveDataAndRefresh(result);
       }
     });
   }
