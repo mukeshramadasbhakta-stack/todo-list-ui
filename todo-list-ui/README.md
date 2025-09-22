@@ -20,6 +20,11 @@ Angular CLI includes powerful code scaffolding tools. To generate a new componen
 ng generate component component-name
 ```
 
+You can also execute prettier code formatting on your project by running:
+```bash
+npx prettier . --write
+```
+
 For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
 ```bash

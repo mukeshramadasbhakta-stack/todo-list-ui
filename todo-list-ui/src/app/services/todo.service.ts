@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Todo } from '../models/todo.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TodoService {
-  // TODO: add these to config
-  private apiUrl = 'http://localhost:5105/todo';
-  private readonly apiKey = 'B9680321-3913-499B-87AB-C4CE4A7E435D';
+  private apiUrl = environment.apiUrl;
+  private readonly apiKey = environment.apiKey;
 
   private opts(): { headers: HttpHeaders } {
     return {
