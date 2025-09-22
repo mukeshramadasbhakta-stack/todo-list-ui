@@ -1,28 +1,39 @@
 <app-spinner [loading]="loading()"></app-spinner>
 
-<section class="todo">
-  <h1>TODOs</h1>
+<section class="todo-card">
+  <h1>Welcome to TODO List</h1>
 
-  <div class="actions">
-    <input matInput placeholder="Search..." [(ngModel)]="searchTerm" />
-    <button mat-raised-button color="primary" (click)="openAddDialog()">Add TODO</button>
+  <div class="toolbar">
+    <mat-form-field class="search" appearance="outline">
+      <mat-label>Search todos…</mat-label>
+      <input matInput [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+    </mat-form-field>
+
+    <button mat-raised-button type="button" color="primary" (click)="openAddDialog()">
+      Add New
+    </button>
   </div>
 
   @if (filteredTodos.length) {
     <div class="list">
-      <ul>
-        @for (item of filteredTodos; track trackById($index, item)) {
-          <span>{{ item.title }} at {{item.appointment}}</span>
-          <button mat-icon-button color="primary" (click)="openEditDialog(item)">✎</button>
-          <button mat-icon-button color="warn" (click)="confirmDelete(item)">✕</button>
-        }
-      </ul>
+      @for (item of filteredTodos; track trackById($index, item)) {
+        <div class="row">
+          <div class="title">
+            {{ item.title }}
+          </div>
+          <div class="when">
+            {{ item.appointment ? (item.appointment | date:'d MMM, y · h:mm a') : 'No date' }}
+          </div>
+          <div class="actions">
+            <button mat-button (click)="openEditDialog(item)">Edit</button>
+            <button mat-button color="warn" (click)="confirmDelete(item)">Delete</button>
+          </div>
+        </div>
+      }
     </div>
   }
   @else {
-    <ng-template #empty>
-      <p class="empty">No TODOs yet. Add one above.</p>
-    </ng-template>
+    <p class="empty">No TODOs yet. Add one above.</p>
   }
 
   @if (error()) {

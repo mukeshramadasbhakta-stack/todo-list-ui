@@ -1,0 +1,16 @@
+.todo-dialog {
+  font-family: 'Inter', sans-serif;
+  h3 {
+    margin-bottom: 2rem;
+  }
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  width: 100%;
+}

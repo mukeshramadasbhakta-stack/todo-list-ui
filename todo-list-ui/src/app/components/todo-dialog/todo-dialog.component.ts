@@ -80,8 +80,12 @@ export class TodoDialogComponent {
     return moment(this.model.appointment).isAfter(moment());
   }
 
+  isTitleValid(): boolean {
+    return !!(this.model.title && this.model.title.trim());
+  }
+
   isFormValid(): boolean {
-    return !!(this.model.title && this.model.title.trim()) && this.isAppointmentValid();
+    return this.isTitleValid() && this.isAppointmentValid();
   }
 
   onCancel() {
