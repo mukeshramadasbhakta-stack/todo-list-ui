@@ -22,6 +22,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.0",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
@@ -29,6 +30,9 @@
     "@angular/material": "^20.2.4",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "@mat-datetimepicker/core": "^16.0.1",
+    "@mat-datetimepicker/moment": "^16.0.1",
+    "moment": "^2.30.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

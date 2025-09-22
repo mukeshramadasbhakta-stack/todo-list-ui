@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-
-export interface Todo {
-  id: string;
-  title: string;
-  completed?: boolean;
-}
+import {Todo} from '../models/todo.model';
 
 @Injectable({ providedIn: 'root' })
 export class TodoService {
@@ -42,7 +37,7 @@ export class TodoService {
 
   upsert(todo: Todo): Observable<string> {
     return this.http
-      .post<string>(`${this.apiUrl}`, { todo }, this.opts())
+      .post<string>(`${this.apiUrl}`, todo, this.opts())
       .pipe(catchError((err) => throwError(() => new Error(err.message || 'Failed to upsert'))));
   }
 

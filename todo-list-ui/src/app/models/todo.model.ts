@@ -1,5 +1,5 @@
 export interface Todo {
-  id: string;
-  title: string;
-  appointment: string;
+  id: string | undefined;
+  title: string | undefined;
+  appointment: string | undefined;
 }

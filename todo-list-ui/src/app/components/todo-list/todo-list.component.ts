@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { TodoService, Todo } from '../../services/todo.service';
+import { TodoService } from '../../services/todo.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TodoDialogComponent } from '../todo-dialog/todo-dialog.component';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { MatCardModule } from '@angular/material/card';
+import {Todo} from '../../models/todo.model';
 
 @Component({
   selector: 'app-todo-list',
@@ -40,7 +41,7 @@ export class TodoListComponent {
 
   get filteredTodos() {
     const term = this.searchTerm().toLowerCase();
-    return this.todos().filter((todo) => todo.title.toLowerCase().includes(term));
+    return this.todos().filter((todo) => todo.title?.toLowerCase().includes(term));
   }
 
   loadTodos() {
@@ -53,7 +54,13 @@ export class TodoListComponent {
   }
 
   openAddDialog() {
-    const dialogRef = this.dialog.open(TodoDialogComponent, { data: null });
+    const dialogRef = this.dialog.open(TodoDialogComponent, {
+      data: {
+        id: undefined,
+        title: '',
+        appointment: ''
+      } as Todo
+    });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.todoService.upsert(result).subscribe({
@@ -92,7 +99,7 @@ export class TodoListComponent {
       data: { message: `Are you sure you want to delete "${todo.title}"?` },
     });
     dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
+      if (confirmed && todo.id) {
         this.todoService.delete(todo.id).subscribe({
           next: () => this.todos.set(this.todos().filter((t) => t.id !== todo.id)),
           error: (err) => this.error.set(err.message),

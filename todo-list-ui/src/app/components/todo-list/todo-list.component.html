@@ -8,19 +8,24 @@
     <button mat-raised-button color="primary" (click)="openAddDialog()">Add TODO</button>
   </div>
 
-  <div class="list" *ngIf="filteredTodos.length; else empty">
-    <ul>
-      <li *ngFor="let item of filteredTodos; trackBy: trackById">
-        <span>{{ item.title }}</span>
-        <button mat-icon-button color="primary" (click)="openEditDialog(item)">✎</button>
-        <button mat-icon-button color="warn" (click)="confirmDelete(item)">✕</button>
-      </li>
-    </ul>
-  </div>
+  @if (filteredTodos.length) {
+    <div class="list">
+      <ul>
+        @for (item of filteredTodos; track trackById($index, item)) {
+          <span>{{ item.title }} at {{item.appointment}}</span>
+          <button mat-icon-button color="primary" (click)="openEditDialog(item)">✎</button>
+          <button mat-icon-button color="warn" (click)="confirmDelete(item)">✕</button>
+        }
+      </ul>
+    </div>
+  }
+  @else {
+    <ng-template #empty>
+      <p class="empty">No TODOs yet. Add one above.</p>
+    </ng-template>
+  }
 
-  <ng-template #empty>
-    <p class="empty">No TODOs yet. Add one above.</p>
-  </ng-template>
-
-  <p *ngIf="error()" class="error">{{ error() }}</p>
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
 </section>
