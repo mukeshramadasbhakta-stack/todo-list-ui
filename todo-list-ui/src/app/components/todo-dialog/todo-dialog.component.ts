@@ -55,8 +55,7 @@ export class TodoDialogComponent {
     public dialogRef: MatDialogRef<TodoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    // Normalize incoming data:
-    // - For edit, data may be { todo: Todo }; for add, it may be a flat Todo.
+    // Normalize incoming data
     const incoming: Todo = (data && data.todo) ? data.todo : data;
 
     // Preserve id from caller if provided
